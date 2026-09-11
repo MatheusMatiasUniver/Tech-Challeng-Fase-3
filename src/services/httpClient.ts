@@ -8,6 +8,8 @@ export type HttpClientOptions = {
   adapter?: AxiosAdapter
 }
 
+export type HttpClient = ReturnType<typeof createHttpClient>
+
 export function createHttpClient(options: HttpClientOptions = {}) {
   const instance = axios.create({
     baseURL: apiBaseUrl,

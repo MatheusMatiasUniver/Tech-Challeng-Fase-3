@@ -60,7 +60,13 @@ export function createHttpClient(options: HttpClientOptions = {}) {
   }
 }
 
-export const httpClient = createHttpClient()
+const runtimeOptions: HttpClientOptions = {}
+
+export const httpClient = createHttpClient(runtimeOptions)
+
+export function configureHttpClient(options: Pick<HttpClientOptions, 'getAccessToken' | 'onUnauthorized'>): void {
+  Object.assign(runtimeOptions, options)
+}
 
 function requestHadBearer(error: unknown): boolean {
   if (!isAxiosError(error) || !error.config?.headers) {

@@ -18,19 +18,20 @@ export interface FormFieldProps {
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 7px;
   text-align: left;
 `
 
 const Label = styled.label`
+  font-size: 14px;
   font-weight: 600;
   color: var(--text-h);
 `
 
 const HintText = styled.p`
   margin: 0;
-  font-size: 0.85rem;
-  color: var(--text);
+  font-size: 13px;
+  color: var(--muted);
 `
 
 const ErrorText = styled.p`
@@ -38,7 +39,7 @@ const ErrorText = styled.p`
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  font-size: 0.85rem;
+  font-size: 13px;
   color: var(--error);
 
   &::before {

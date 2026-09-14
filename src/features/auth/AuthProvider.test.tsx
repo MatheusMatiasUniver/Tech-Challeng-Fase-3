@@ -1,5 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/react'
-import { beforeEach, expect, test, vi } from 'vitest'
+import { act, fireEvent, render, screen } from '@testing-library/react'
+import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import * as httpClientModule from '../../services/httpClient'
 import { AuthProvider } from './AuthProvider'
 import { saveSession } from './session'
@@ -9,6 +9,39 @@ const STORAGE_KEY = 'auth_token'
 
 beforeEach(() => {
   sessionStorage.clear()
+})
+
+afterEach(() => {
+  vi.useRealTimers()
+  vi.restoreAllMocks()
+})
+
+test('encerra a sessao quando o token expira com a pagina aberta', () => {
+  vi.useFakeTimers()
+  saveSession(makeToken({ sub: 'user-1', exp: futureExp(60) }), 'prof@escola.com')
+  render(<AuthProvider><TestConsumer /></AuthProvider>)
+
+  act(() => vi.advanceTimersByTime(60_000))
+
+  expect(screen.getByText('visitante')).toBeInTheDocument()
+  expect(sessionStorage.getItem(STORAGE_KEY)).toBeNull()
+  expect(sessionStorage.getItem('auth_email')).toBeNull()
+})
+
+test('sincroniza a sessao ao pedir token se o temporizador ainda nao executou', () => {
+  vi.useFakeTimers()
+  const configureSpy = vi.spyOn(httpClientModule, 'configureHttpClient')
+  saveSession(makeToken({ sub: 'user-1', exp: futureExp(60) }))
+  render(<AuthProvider><TestConsumer /></AuthProvider>)
+  const options = configureSpy.mock.calls.at(-1)![0]
+
+  vi.setSystemTime(Date.now() + 60_000)
+  act(() => {
+    expect(options.getAccessToken?.()).toBeUndefined()
+  })
+
+  expect(screen.getByText('visitante')).toBeInTheDocument()
+  expect(sessionStorage.getItem(STORAGE_KEY)).toBeNull()
 })
 
 function makeToken(payload: unknown): string {

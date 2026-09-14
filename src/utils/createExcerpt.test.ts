@@ -13,10 +13,19 @@ test('conteudo so com espacos e quebras de linha devolve string vazia', () => {
   expect(createExcerpt('   \n\n   \t  ')).toBe('')
 })
 
-test('normaliza espacos e quebras de linha repetidas para um espaco so', () => {
-  expect(createExcerpt('Primeira linha.\n\nSegunda   linha.')).toBe(
-    'Primeira linha. Segunda linha.',
-  )
+test('usa so o primeiro paragrafo do conteudo', () => {
+  expect(createExcerpt('Primeiro paragrafo.\n\nSegundo paragrafo.')).toBe('Primeiro paragrafo.')
+})
+
+test('ignora quebras de linha no inicio e normaliza espacos repetidos', () => {
+  expect(createExcerpt('\n\n  Primeira    linha.\nSegunda linha.')).toBe('Primeira linha.')
+})
+
+test('o limite padrao e 130 caracteres', () => {
+  const excerpt = createExcerpt('palavra '.repeat(40).trim())
+
+  expect(excerpt.length).toBeLessThanOrEqual(131)
+  expect(excerpt.endsWith('…')).toBe(true)
 })
 
 test('conteudo longo corta no ultimo espaco antes do limite e adiciona reticencias', () => {

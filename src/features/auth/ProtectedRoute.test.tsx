@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
+import { MemoryRouter, Route, Routes, useSearchParams } from 'react-router-dom'
 import { expect, test, vi } from 'vitest'
 import { AuthContext, type AuthContextValue } from './auth-context'
 import { ProtectedRoute } from './ProtectedRoute'
@@ -16,9 +16,9 @@ function makeAuthValue(isAuthenticated: boolean): AuthContextValue {
 }
 
 function LoginStub() {
-  const location = useLocation()
-  const from = (location.state as { from?: string } | null)?.from
-  return <p>Login Page - destino: {from ?? 'nenhum'}</p>
+  const [searchParams] = useSearchParams()
+  const redirect = searchParams.get('redirect')
+  return <p>Login Page - destino: {redirect ?? 'nenhum'}</p>
 }
 
 function renderApp(isAuthenticated: boolean, initialEntry: string) {

@@ -1,19 +1,26 @@
 import type { AuthSession } from '../../types/api'
 
 const STORAGE_KEY = 'auth_token'
+const EMAIL_STORAGE_KEY = 'auth_email'
 
 interface JwtPayload {
   sub?: unknown
   exp?: unknown
 }
 
-export function saveSession(accessToken: string): AuthSession | null {
+export function saveSession(accessToken: string, email?: string): AuthSession | null {
   const session = parseToken(accessToken)
   if (!session) {
     return null
   }
 
   sessionStorage.setItem(STORAGE_KEY, accessToken)
+  if (email) {
+    sessionStorage.setItem(EMAIL_STORAGE_KEY, email)
+    return { ...session, email }
+  }
+
+  sessionStorage.removeItem(EMAIL_STORAGE_KEY)
   return session
 }
 
@@ -25,15 +32,22 @@ export function getSession(): AuthSession | null {
 
   const session = parseToken(token)
   if (!session) {
-    sessionStorage.removeItem(STORAGE_KEY)
+    clearSession()
     return null
   }
 
-  return session
+  const email = sessionStorage.getItem(EMAIL_STORAGE_KEY)
+  return email ? { ...session, email } : session
 }
 
 export function clearSession(): void {
   sessionStorage.removeItem(STORAGE_KEY)
+  sessionStorage.removeItem(EMAIL_STORAGE_KEY)
+}
+
+export function getDisplayName(session: AuthSession | null): string {
+  const localPart = session?.email?.split('@')[0]
+  return localPart || '—'
 }
 
 function parseToken(token: string): AuthSession | null {

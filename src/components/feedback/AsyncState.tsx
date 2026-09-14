@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled, { keyframes } from 'styled-components'
 import { StatusMessage } from './StatusMessage'
 
 export type AsyncStateProps =
@@ -6,55 +6,90 @@ export type AsyncStateProps =
   | { status: 'empty'; label: string }
   | { status: 'error'; message: string; onRetry?: () => void }
 
-const Wrapper = styled.div`
+const spin = keyframes`
+  to {
+    transform: rotate(360deg);
+  }
+`
+
+const Loading = styled.div`
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
-  padding: 2rem 1rem;
+  gap: 12px;
+  padding: 48px 0;
+  font-size: 16px;
+`
+
+const Spinner = styled.span`
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border-strong);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: ${spin} 0.8s linear infinite;
+`
+
+const Empty = styled.div`
+  padding: 48px 24px;
+  border: 1px dashed var(--border-strong);
+  border-radius: 14px;
   text-align: center;
+  font-size: 17px;
+`
+
+const ErrorBox = styled.div`
+  padding: 24px;
+  border: 1px solid var(--accent-soft);
+  border-radius: 14px;
+  background: var(--error-bg);
+  font-size: 16px;
 `
 
 const RetryButton = styled.button`
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  background: transparent;
-  color: var(--text-h);
-  padding: 0.5rem 1rem;
+  margin-top: 14px;
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 18px;
   font: inherit;
+  font-size: 15px;
+  font-weight: 600;
   cursor: pointer;
+  background: var(--accent);
+  color: #fff;
 
-  &:hover {
-    border-color: var(--accent);
-    color: var(--accent);
+  &:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
   }
 `
 
 export function AsyncState(props: AsyncStateProps) {
   if (props.status === 'loading') {
     return (
-      <Wrapper>
+      <Loading>
+        <Spinner aria-hidden="true" />
         <StatusMessage tone="info">{props.label ?? 'Carregando...'}</StatusMessage>
-      </Wrapper>
+      </Loading>
     )
   }
 
   if (props.status === 'empty') {
     return (
-      <Wrapper>
+      <Empty>
         <StatusMessage tone="info">{props.label}</StatusMessage>
-      </Wrapper>
+      </Empty>
     )
   }
 
   return (
-    <Wrapper>
+    <ErrorBox>
       <StatusMessage tone="error">{props.message}</StatusMessage>
       {props.onRetry ? (
         <RetryButton type="button" onClick={props.onRetry}>
           Tentar novamente
         </RetryButton>
       ) : null}
-    </Wrapper>
+    </ErrorBox>
   )
 }

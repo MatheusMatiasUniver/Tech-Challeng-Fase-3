@@ -57,6 +57,15 @@ test('limpar esvazia o campo e chama onClear', () => {
   expect(onClear).toHaveBeenCalledTimes(1)
 })
 
+test('o campo tem um placeholder explicando o que buscar', () => {
+  render(<SearchForm onSearch={vi.fn()} onClear={vi.fn()} />)
+
+  expect(screen.getByLabelText('Termo de busca')).toHaveAttribute(
+    'placeholder',
+    'Título, autor ou trecho',
+  )
+})
+
 test('o campo tem label visivel e os botoes tem nome acessivel', () => {
   render(<SearchForm onSearch={vi.fn()} onClear={vi.fn()} />)
 

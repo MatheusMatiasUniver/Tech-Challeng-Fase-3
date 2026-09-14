@@ -1,7 +1,8 @@
-export const DEFAULT_EXCERPT_LENGTH = 160
+export const DEFAULT_EXCERPT_LENGTH = 130
 
 export function createExcerpt(content: string, maxLength: number = DEFAULT_EXCERPT_LENGTH): string {
-  const normalized = content.trim().replace(/\s+/g, ' ')
+  const firstParagraph = content.trim().split('\n')[0]
+  const normalized = firstParagraph.trim().replace(/\s+/g, ' ')
 
   if (normalized.length <= maxLength) {
     return normalized

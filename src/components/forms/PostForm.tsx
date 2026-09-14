@@ -15,6 +15,7 @@ export interface PostFormProps {
   status: PostFormStatus
   errorMessage?: string
   onSubmit: (values: PostFormValues) => void
+  onCancel?: () => void
 }
 
 const TITLE_MAX_LENGTH = 255
@@ -28,13 +29,13 @@ function validate(values: PostFormValues): FieldErrors {
   const errors: FieldErrors = {}
 
   if (values.title.length === 0) {
-    errors.title = 'Informe um titulo.'
+    errors.title = 'Informe um título.'
   } else if (values.title.length > TITLE_MAX_LENGTH) {
-    errors.title = `O titulo deve ter no maximo ${TITLE_MAX_LENGTH} caracteres.`
+    errors.title = `O título deve ter no máximo ${TITLE_MAX_LENGTH} caracteres.`
   }
 
   if (values.content.length === 0) {
-    errors.content = 'Informe o conteudo do post.'
+    errors.content = 'Informe o conteúdo do post.'
   }
 
   return errors
@@ -43,39 +44,66 @@ function validate(values: PostFormValues): FieldErrors {
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  max-width: 40rem;
+  gap: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 26px;
+`
+
+const fieldStyle = `
+  font: inherit;
+  padding: 12px 14px;
+  background: var(--bg);
+  color: var(--text-h);
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+
+  &:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+    border-color: var(--accent);
+  }
 `
 
 const Input = styled.input`
-  font: inherit;
-  padding: 0.5rem;
-  border: 1px solid var(--border);
-  border-radius: 4px;
+  ${fieldStyle}
+  font-size: 17px;
 `
 
 const TextArea = styled.textarea`
-  min-height: 10rem;
-  font: inherit;
-  padding: 0.5rem;
-  border: 1px solid var(--border);
-  border-radius: 4px;
+  ${fieldStyle}
+  min-height: 220px;
+  padding: 14px;
+  font-size: 16px;
+  line-height: 1.65;
   resize: vertical;
 `
 
-const SubmitButton = styled.button`
-  align-self: flex-start;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 0.55rem 1.25rem;
-  font: inherit;
-  cursor: pointer;
-  background: transparent;
-  color: var(--text-h);
+const ErrorBox = styled.div`
+  padding: 12px 14px;
+  font-size: 15px;
+  background: var(--error-bg);
+  border: 1px solid var(--accent-soft);
+  border-radius: 10px;
+`
 
-  &:hover:not(:disabled) {
-    border-color: var(--accent);
-    color: var(--accent);
+const Actions = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+`
+
+const buttonBase = `
+  border-radius: 10px;
+  padding: 13px 24px;
+  font: inherit;
+  font-size: 16px;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
   }
 
   &:disabled {
@@ -84,7 +112,39 @@ const SubmitButton = styled.button`
   }
 `
 
-export function PostForm({ initialValues, status, errorMessage, onSubmit }: PostFormProps) {
+const SubmitButton = styled.button`
+  ${buttonBase}
+  border: 0;
+  font-weight: 600;
+  background: var(--ink);
+  color: var(--on-ink);
+
+  &:hover:not(:disabled) {
+    background: var(--accent);
+  }
+`
+
+const CancelButton = styled.button`
+  ${buttonBase}
+  padding: 13px 22px;
+  border: 1px solid var(--border-strong);
+  font-weight: 500;
+  background: none;
+  color: var(--text);
+
+  &:hover:not(:disabled) {
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+`
+
+export function PostForm({
+  initialValues,
+  status,
+  errorMessage,
+  onSubmit,
+  onCancel,
+}: PostFormProps) {
   const [values, setValues] = useState<PostFormValues>(initialValues ?? { title: '', content: '' })
   const [errors, setErrors] = useState<FieldErrors>({})
   const isLoading = status === 'loading'
@@ -108,10 +168,11 @@ export function PostForm({ initialValues, status, errorMessage, onSubmit }: Post
 
   return (
     <Form onSubmit={handleSubmit} noValidate>
-      <FormField id="post-title" label="Titulo" error={errors.title}>
+      <FormField id="post-title" label="Título" error={errors.title}>
         <Input
           type="text"
           value={values.title}
+          placeholder="Ex.: Como estruturar um projeto React"
           disabled={isLoading}
           onChange={(event) => {
             const title = event.target.value
@@ -120,9 +181,16 @@ export function PostForm({ initialValues, status, errorMessage, onSubmit }: Post
           }}
         />
       </FormField>
-      <FormField id="post-content" label="Conteudo" error={errors.content}>
+      <FormField
+        id="post-content"
+        label="Conteúdo"
+        error={errors.content}
+        hint={`${values.content.length} caracteres`}
+      >
         <TextArea
+          rows={12}
           value={values.content}
+          placeholder="Escreva o post…"
           disabled={isLoading}
           onChange={(event) => {
             const content = event.target.value
@@ -132,11 +200,20 @@ export function PostForm({ initialValues, status, errorMessage, onSubmit }: Post
         />
       </FormField>
       {status === 'error' && errorMessage ? (
-        <StatusMessage tone="error">{errorMessage}</StatusMessage>
+        <ErrorBox>
+          <StatusMessage tone="error">{errorMessage}</StatusMessage>
+        </ErrorBox>
       ) : null}
-      <SubmitButton type="submit" disabled={isLoading}>
-        {isLoading ? 'Salvando...' : 'Salvar'}
-      </SubmitButton>
+      <Actions>
+        <SubmitButton type="submit" disabled={isLoading}>
+          {isLoading ? 'Salvando...' : 'Salvar'}
+        </SubmitButton>
+        {onCancel ? (
+          <CancelButton type="button" onClick={onCancel} disabled={isLoading}>
+            Cancelar
+          </CancelButton>
+        ) : null}
+      </Actions>
     </Form>
   )
 }

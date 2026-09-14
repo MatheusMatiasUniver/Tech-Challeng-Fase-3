@@ -1,6 +1,8 @@
 import { httpClient, type HttpClient } from '../../services/httpClient'
 import type { Post } from '../../types/api'
 
+export type PostQueries = ReturnType<typeof createPostQueries>
+
 export function createPostQueries(client: HttpClient = httpClient) {
   return {
     list(): Promise<Post[]> {

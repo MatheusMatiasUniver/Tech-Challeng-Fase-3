@@ -1,6 +1,8 @@
 import { httpClient, type HttpClient } from '../../services/httpClient'
 import type { CreatePostInput, Post, UpdatePostInput } from '../../types/api'
 
+export type PostCommands = ReturnType<typeof createPostCommands>
+
 export function createPostCommands(client: HttpClient = httpClient) {
   return {
     create(input: CreatePostInput): Promise<Post> {

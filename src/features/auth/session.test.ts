@@ -1,5 +1,5 @@
 import { beforeEach, expect, test } from 'vitest'
-import { clearSession, getSession, saveSession } from './session'
+import { clearSession, getDisplayName, getSession, saveSession } from './session'
 
 const STORAGE_KEY = 'auth_token'
 
@@ -92,4 +92,40 @@ test('clearSession remove o token e getSession passa a devolver null', () => {
 
   expect(sessionStorage.getItem(STORAGE_KEY)).toBeNull()
   expect(getSession()).toBeNull()
+})
+
+test('saveSession com e-mail guarda o e-mail e getSession o devolve junto com a sessao', () => {
+  const token = makeToken({ sub: 'user-6', exp: futureExp() })
+
+  expect(saveSession(token, 'professor@exemplo.com')?.email).toBe('professor@exemplo.com')
+  expect(getSession()?.email).toBe('professor@exemplo.com')
+})
+
+test('clearSession tambem remove o e-mail guardado', () => {
+  saveSession(makeToken({ sub: 'user-7', exp: futureExp() }), 'professor@exemplo.com')
+
+  clearSession()
+
+  expect(sessionStorage.getItem('auth_email')).toBeNull()
+})
+
+test('token expirado tambem descarta o e-mail guardado', () => {
+  sessionStorage.setItem(STORAGE_KEY, makeToken({ sub: 'user-8', exp: pastExp() }))
+  sessionStorage.setItem('auth_email', 'professor@exemplo.com')
+
+  expect(getSession()).toBeNull()
+  expect(sessionStorage.getItem('auth_email')).toBeNull()
+})
+
+test('getDisplayName mostra a parte antes do "@" do e-mail', () => {
+  const session = saveSession(makeToken({ sub: 'user-9', exp: futureExp() }), 'ana.docente@fiap.com.br')
+
+  expect(getDisplayName(session)).toBe('ana.docente')
+})
+
+test('getDisplayName sem e-mail (sessao antiga) ou sem sessao mostra "—"', () => {
+  const session = saveSession(makeToken({ sub: 'user-10', exp: futureExp() }))
+
+  expect(getDisplayName(session)).toBe('—')
+  expect(getDisplayName(null)).toBe('—')
 })

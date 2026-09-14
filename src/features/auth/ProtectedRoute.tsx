@@ -7,7 +7,8 @@ export function ProtectedRoute() {
 
   if (!isAuthenticated) {
     const from = `${location.pathname}${location.search}`
-    return <Navigate to="/login" replace state={{ from }} />
+    const redirect = encodeURIComponent(from)
+    return <Navigate to={`/login?redirect=${redirect}`} replace />
   }
 
   return <Outlet />

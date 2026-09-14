@@ -8,20 +8,24 @@ export interface PostListProps {
 
 const List = styled.ul`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: 18px;
   margin: 0;
   padding: 0;
   list-style: none;
+`
+
+const Item = styled.li`
+  display: flex;
 `
 
 export function PostList({ posts }: PostListProps) {
   return (
     <List aria-label="Lista de posts">
       {posts.map((post) => (
-        <li key={post.id}>
+        <Item key={post.id}>
           <PostCard post={post} />
-        </li>
+        </Item>
       ))}
     </List>
   )

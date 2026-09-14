@@ -32,10 +32,33 @@ export function AuthProvider({ children, authService = defaultAuthService }: Aut
 
   useEffect(() => {
     configureHttpClient({
-      getAccessToken: () => getSession()?.accessToken,
+      getAccessToken: () => {
+        const currentSession = getSession()
+        if (!currentSession) logout()
+        return currentSession?.accessToken
+      },
       onUnauthorized: logout,
     })
   }, [logout])
+
+  useEffect(() => {
+    if (!session) return
+
+    const expiresAt = session.expiresAt
+    let timer: ReturnType<typeof setTimeout>
+    function checkExpiration() {
+      const remaining = expiresAt - Date.now()
+      if (remaining <= 0) {
+        logout()
+      } else {
+        // Limita cada espera ao maior intervalo aceito pelo navegador.
+        timer = setTimeout(checkExpiration, Math.min(remaining, 2_147_483_647))
+      }
+    }
+
+    timer = setTimeout(checkExpiration, 0)
+    return () => clearTimeout(timer)
+  }, [session, logout])
 
   const value = useMemo<AuthContextValue>(
     () => ({ session, isAuthenticated: session !== null, login, logout }),

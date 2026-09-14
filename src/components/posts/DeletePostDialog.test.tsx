@@ -39,10 +39,26 @@ function Harness({
   )
 }
 
-test('o titulo do post aparece na confirmacao', () => {
+test('pergunta "Excluir post?" e avisa que o post sera removido permanentemente', () => {
   render(<DeletePostDialog post={post} onConfirm={vi.fn()} onCancel={vi.fn()} />)
 
-  expect(screen.getByRole('dialog')).toHaveTextContent('Meu Post Importante')
+  expect(screen.getByRole('dialog', { name: 'Excluir post?' })).toHaveTextContent(
+    '"Meu Post Importante" será removido permanentemente.',
+  )
+})
+
+test('Tab no ultimo botao volta para o primeiro, e Shift+Tab no primeiro vai para o ultimo', () => {
+  render(<DeletePostDialog post={post} onConfirm={vi.fn()} onCancel={vi.fn()} />)
+
+  const cancel = screen.getByRole('button', { name: 'Cancelar' })
+  const confirm = screen.getByRole('button', { name: 'Excluir' })
+
+  confirm.focus()
+  fireEvent.keyDown(confirm, { key: 'Tab' })
+  expect(cancel).toHaveFocus()
+
+  fireEvent.keyDown(cancel, { key: 'Tab', shiftKey: true })
+  expect(confirm).toHaveFocus()
 })
 
 test('Escape aciona cancelar, nunca confirmar', () => {

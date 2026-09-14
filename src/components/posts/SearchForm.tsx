@@ -1,6 +1,5 @@
 import { useState, type FormEvent } from 'react'
 import styled from 'styled-components'
-import { FormField } from '../forms/FormField'
 
 export interface SearchFormProps {
   value?: string
@@ -10,29 +9,80 @@ export interface SearchFormProps {
 
 const Form = styled.form`
   display: flex;
-  align-items: flex-end;
-  gap: 0.5rem;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 8px;
 `
 
-const Actions = styled.div`
+const Label = styled.label`
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+`
+
+const Row = styled.div`
   display: flex;
-  gap: 0.5rem;
+  flex-wrap: wrap;
+  gap: 8px;
 `
 
-const Button = styled.button`
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 0.55rem 1rem;
+const focusRing = `
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+`
+
+const Input = styled.input`
+  flex: 1 1 160px;
+  min-width: 0;
   font: inherit;
-  cursor: pointer;
-  background: transparent;
+  font-size: 16px;
+  padding: 12px 14px;
+  background: var(--surface);
   color: var(--text-h);
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+
+  &:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+    border-color: var(--accent);
+  }
+`
+
+const PrimaryButton = styled.button`
+  border: 0;
+  border-radius: 10px;
+  padding: 12px 20px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--ink);
+  color: var(--on-ink);
 
   &:hover {
-    border-color: var(--accent);
-    color: var(--accent);
+    background: var(--accent);
   }
+  ${focusRing}
+`
+
+const SecondaryButton = styled.button`
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  padding: 12px 18px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  background: none;
+  color: var(--text);
+
+  &:hover {
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+  ${focusRing}
 `
 
 export function SearchForm({ value = '', onSearch, onClear }: SearchFormProps) {
@@ -54,15 +104,20 @@ export function SearchForm({ value = '', onSearch, onClear }: SearchFormProps) {
 
   return (
     <Form onSubmit={handleSubmit} role="search" aria-label="Buscar posts">
-      <FormField id="search-term" label="Termo de busca">
-        <input type="search" value={term} onChange={(event) => setTerm(event.target.value)} />
-      </FormField>
-      <Actions>
-        <Button type="submit">Buscar</Button>
-        <Button type="button" onClick={handleClear}>
+      <Label htmlFor="search-term">Termo de busca</Label>
+      <Row>
+        <Input
+          id="search-term"
+          type="search"
+          value={term}
+          placeholder="Título, autor ou trecho"
+          onChange={(event) => setTerm(event.target.value)}
+        />
+        <PrimaryButton type="submit">Buscar</PrimaryButton>
+        <SecondaryButton type="button" onClick={handleClear}>
           Limpar
-        </Button>
-      </Actions>
+        </SecondaryButton>
+      </Row>
     </Form>
   )
 }

@@ -23,3 +23,10 @@ test('tem um link acessivel que volta para a home', () => {
   const link = screen.getByRole('link', { name: /voltar para a página inicial/i })
   expect(link).toHaveAttribute('href', '/')
 })
+
+test('explica que o endereco nao existe e esconde o "404" decorativo do leitor de tela', () => {
+  renderPage()
+
+  expect(screen.getByText('O endereço não existe ou foi movido.')).toBeInTheDocument()
+  expect(screen.getByText('404')).toHaveAttribute('aria-hidden', 'true')
+})

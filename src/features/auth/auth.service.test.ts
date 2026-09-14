@@ -89,6 +89,7 @@ test('login bem-sucedido guarda a sessao e devolve os dados do token', async () 
 
   expect(session.userId).toBe('user-2')
   expect(session.accessToken).toBe(token)
+  expect(session.email).toBe('professor@exemplo.com')
   expect(sessionStorage.getItem(STORAGE_KEY)).toBe(token)
 })
 

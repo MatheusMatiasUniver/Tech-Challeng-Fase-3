@@ -10,7 +10,7 @@ export function createAuthService(client: HttpClient = httpClient) {
         password: credentials.password,
       })
 
-      const session = saveSession(response.access_token)
+      const session = saveSession(response.access_token, credentials.email)
       if (!session) {
         throw new Error('Resposta de login invalida: token ausente ou malformado.')
       }

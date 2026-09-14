@@ -29,6 +29,7 @@ export interface AuthSession {
   tokenType: 'Bearer'
   userId: string
   expiresAt: number
+  email?: string
 }
 
 export interface CreatePostInput {

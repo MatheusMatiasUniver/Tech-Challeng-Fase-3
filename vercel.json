@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "https://tech-challenge-vhbi.onrender.com/$1" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
